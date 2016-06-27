@@ -3,7 +3,7 @@
 # http://opensource.org/licenses/mit-license.php
 
 ### Settings ###
-SOURCES=src
+TOP=
 
 ### Environment Settings ###
 SYNTHESIJER_VERSION=20160511
@@ -15,10 +15,27 @@ ENV_INSTALL_LOG=$(PWD)/env_install.log
 CURL=curl
 FIND=find
 
+.PHONY: all
+all: init synthesijer_build
+
+.PHONY: synthesijer_build
+synthesijer_build: build_modules $(TOP:.java=.v)
+
+$(TOP:.java=.v): $(TOP) $(MODULES:.java=.v)
+	@echo "*** Synthesijer Top Module ***"
+	$(JAVAC) -cp $(SYNTHESIJER):. $(TOP)
+	$(JAVA) -cp $(SYNTHESIJER):. $(TOP:.java=)
+	@echo
+
+.PHONY: build_modules
+build_modules: $(MODULES) $(WRAPPERS)
+	@echo "*** Synthesijer Submodules ***"
+	$(JAVA) -cp $(SYNTHESIJER) synthesijer.Main --verilog $(MODULES) $(WRAPPERS)
+	@echo
+
 .PHONY: init
 init:
 	@$(MAKE) -C ./ construct_env
-	@mkdir -p $(SOURCES)
 
 .PHONY: construct_env
 construct_env:
@@ -43,6 +60,7 @@ endef
 
 define install_pycoram
 	@echo Getting PyCoRAM...
+	@mkdir -p pycoram
 	@cd pycoram; git clone https://github.com/shtaxxx/PyCoRAM.git >> $(ENV_INSTALL_LOG) 2>&1
 	@cd pycoram/PyCoRAM; git clone https://github.com/shtaxxx/Pyverilog.git >> $(ENV_INSTALL_LOG) 2>&1
 	@cd pycoram/PyCoRAM/pycoram; ln -s ../Pyverilog/pyverilog >> $(ENV_INSTALL_LOG) 2>&1
@@ -58,7 +76,7 @@ clean:
 	rm env_install.log
 
 .PHONY: reset
-clean:
+reset:
 	rm -rf pycoram/ synthesijer/
 	$(MAKE) -C ./ clean
 
