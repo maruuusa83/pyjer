@@ -43,7 +43,7 @@ all: init build_ip
 .PHONY: build_ip
 build_ip: synthesijer_build pycoram_build
 
-.PHONY: synthesijer_build
+.PHONY:synthesijer_build
 synthesijer_build: $(MODULES:.java=.v) $(TOP:.java=.v)
 
 .PHONY: pycoram_build
@@ -112,6 +112,26 @@ define touch_install_log
 	@touch $(ENV_INSTALL_LOG)
 endef
 
+.PHONY: test
+test:
+	@echo "Prepairing..."
+	@cp test/*.java ./
+	@cp test/pycoram/* ./pycoram/
+	@echo "Start Build Test"
+	@$(MAKE) -C ./ \
+		TOP="SumTestTop.java" \
+		MODULES="SumTest.java Dummy.java" \
+		all
+	@echo
+	@echo "Cleanup"
+	@$(MAKE) -C ./ \
+		TOP="SumTestTop.java" \
+		MODULES="SumTest.java Dummy.java" \
+		reset
+	@$(RM) SumTestTop.java SumTest.java Dummy.java
+	@cd pycoram; $(RM) ctrl_thread.py testbench.v userlogic.v
+	@echo "Done."
+
 .PHONY: clean
 clean:
 	$(RM) -f env_install.log
@@ -119,10 +139,11 @@ clean:
 	$(RM) -f $(TOP:.java=.v) $(TOP:.java=.class)
 	$(RM) -f $(MODULES:.java=.v) $(MODULES:.java=.class)
 	cd pycoram; $(RM) -f $(TOP:.java=.v) $(MODULES:.java=.v) $(VERILOG_MODULES)
+	$(RM) -rf $(PYCORAM_GENDIR)
 	$(MAKE) -C pycoram/ clean
 
 .PHONY: reset
 reset:
-	rm -rf pycoram/ synthesijer/
 	$(MAKE) -C ./ clean
+	rm -rf pycoram/PyCoRAM/ synthesijer/
 
