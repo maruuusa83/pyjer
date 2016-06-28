@@ -17,14 +17,24 @@ PYCORAM_USERLOGIC_V=$(PYCORAM_GENDIR)/hdl/verilog/pycoram_userlogic.v
 
 ENV_INSTALL_LOG=$(PWD)/env_install.log
 
+### Command Settings ###
+JAVA=java
+JAVAC=javac
+
 CURL=curl
 FIND=find
+SED=sed
+
+.SUFFIXES: .java .v
 
 .PHONY: all
-all: init synthesijer_build
+all: init build_ip
+
+.PHONY: build_ip
+build_ip: synthesijer_build pycoram_build
 
 .PHONY: synthesijer_build
-synthesijer_build: build_modules $(TOP:.java=.v)
+synthesijer_build: $(MODULES:.java=.v) $(TOP:.java=.v)
 
 $(TOP:.java=.v): $(TOP) $(MODULES:.java=.v)
 	@echo "*** Synthesijer Top Module ***"
@@ -32,11 +42,8 @@ $(TOP:.java=.v): $(TOP) $(MODULES:.java=.v)
 	$(JAVA) -cp $(SYNTHESIJER):. $(TOP:.java=)
 	@echo
 
-.PHONY: build_modules
-build_modules: $(MODULES) $(WRAPPERS)
-	@echo "*** Synthesijer Submodules ***"
-	$(JAVA) -cp $(SYNTHESIJER) synthesijer.Main --verilog $(MODULES) $(WRAPPERS)
-	@echo
+.java.v:
+	$(JAVA) -cp $(SYNTHESIJER) synthesijer.Main --verilog $<
 
 .PHONY: pycoram_build
 pycoram_build:
@@ -87,10 +94,12 @@ endef
 
 .PHONY: clean
 clean:
-	rm -f env_install.log
-	rm -f *_scheduler_board_*
-	rm -f $(TOP:.java=.v) $(TOP:.java=.class)
-	rm -f $(MODULES:.java=.v)
+	$(RM) -f env_install.log
+	$(RM) -f *_scheduler_board_*
+	$(RM) -f $(TOP:.java=.v) $(TOP:.java=.class)
+	$(RM) -f $(MODULES:.java=.v) $(MODULES:.java=.class)
+	cd pycoram; $(RM) -f $(TOP:.java=.v) $(MODULES:.java=.v) $(VERILOG_MODULES)
+	$(MAKE) -C pycoram/ clean
 
 .PHONY: reset
 reset:
