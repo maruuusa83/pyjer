@@ -17,9 +17,11 @@ DESIGN_NAME=design_1
 
 SETTING_FILE=builder/settings.tcl
 
+VIVADO=vivado
+VIVADO_OPTIONS=
+
 .PHONY: all
-all: $(SETTING_FILE) generate_project synthesis implementation export_hardware \
-	generate_fsbl generate_bif generate_bootimage
+all: $(SETTING_FILE) build export_hardware generate_fsbl generate_bif generate_bootimage
 
 $(SETTING_FILE):
 	@echo "*** Generate settings.tcl ***"
@@ -38,19 +40,10 @@ $(SETTING_FILE):
 	mv settings.tcl.tmp $(SETTING_FILE)
 	@echo
 
-.PHONY: generate_project
-generate_project:
-	@echo "*** Generate Project ***"
-	@echo
-
-.PHONY: synthesis
-synthesis:
-	@echo "*** Synthesis ***"
-	@echo
-
-.PHONY: implementation
-implementation:
-	@echo "*** Implementation ***"
+.PHONY: build
+build:
+	@echo "*** BUILD ***"
+	$(VIVADO) $(VIVADO_OPTIONS) -mode batch -source ./builder/build.tcl
 	@echo
 
 .PHONY: export_hardware
