@@ -38,8 +38,8 @@ build_modules: $(MODULES) $(WRAPPERS)
 	$(JAVA) -cp $(SYNTHESIJER) synthesijer.Main --verilog $(MODULES) $(WRAPPERS)
 	@echo
 
-.PHONY: build_pycoram
-build_pycoram:
+.PHONY: pycoram_build
+pycoram_build:
 	@echo "*** PyCoRAM ***"
 	cp ./*.v pycoram/
 	$(MAKE) -C pycoram/ BFTOP="$(TOP:.java=.v)" BFMOD="$(MODULES:.java=.v)" BFVMOD="$(DEPEND_MODULES)" $(PYCORAM_BUILD_CMD)
