@@ -4,6 +4,16 @@
 
 ### Settings ###
 TOP=
+MODULES=
+WRAPPERS=
+VERILOG_MODULES=
+
+PYCORAM_TOPRTL=userlogic.v
+PYCORAM_TOPMODULE=$(PYCORAM_TOPRTL:.v=)
+PYCORAM_THREAD=ctrl_thread.py
+PYCORAM_TEST=testbench.v
+PYCORAM_DIR=pycoram
+PYCORAM_FILES=$(PYCORAM_DIR)/$(PYCORAM_TOPRTL) $(PYCORAM_DIR)/$(PYCORAM_THREAD) $(PYCORAM_DIR)/$(PYCORAM_TEST)
 
 ### Environment Settings ###
 SYNTHESIJER_VERSION=20160511
@@ -36,6 +46,9 @@ build_ip: synthesijer_build pycoram_build
 .PHONY: synthesijer_build
 synthesijer_build: $(MODULES:.java=.v) $(TOP:.java=.v)
 
+.PHONY: pycoram_build
+pycoram_build: $(PYCORAM_USERLOGIC_V)
+
 $(TOP:.java=.v): $(TOP) $(MODULES:.java=.v)
 	@echo "*** Synthesijer Top Module ***"
 	$(JAVAC) -cp $(SYNTHESIJER):. $(TOP)
@@ -45,12 +58,19 @@ $(TOP:.java=.v): $(TOP) $(MODULES:.java=.v)
 .java.v:
 	$(JAVA) -cp $(SYNTHESIJER) synthesijer.Main --verilog $<
 
-.PHONY: pycoram_build
-pycoram_build:
+$(PYCORAM_USERLOGIC_V): $(MODULES:.java=.v) $(TOP:.java=.v) $(PYCORAM_FILES)
 	@echo "*** PyCoRAM ***"
 	cp ./*.v pycoram/
-	$(MAKE) -C pycoram/ BFTOP="$(TOP:.java=.v)" BFMOD="$(MODULES:.java=.v)" BFVMOD="$(DEPEND_MODULES)" $(PYCORAM_BUILD_CMD)
-	cat $(PYCORAM_USERLOGIC_V) | $(SED) -e 's/;assign .* = / = /g' | $(SED) -e 's/\([0-9]\+\)parameter/\1, parameter/g' > $(PYCORAM_USERLOGIC_V).tmp
+	$(MAKE) -C pycoram/ \
+		TOPMODULE="$(PYCORAM_TOPMODULE)" \
+		RTL="$(PYCORAM_TOPRTL) $(TOP:.java=.v) $(MODULES:.java=.v) $(DEPEND_MODULES)" \
+		THREAD="$(PYCORAM_THREAD)" \
+		TEST="$(PYCORAM_TEST)" \
+		$(PYCORAM_BUILD_CMD)
+	cat $(PYCORAM_USERLOGIC_V) \
+		| $(SED) -e 's/;assign .* = / = /g' \
+		| $(SED) -e 's/\([0-9]\+\)parameter/\1, parameter/g' \
+		> $(PYCORAM_USERLOGIC_V).tmp
 	mv $(PYCORAM_USERLOGIC_V).tmp $(PYCORAM_USERLOGIC_V)
 	@echo
 
