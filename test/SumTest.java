@@ -2,7 +2,7 @@ import synthesijer.rt.*;
 import synthesijer.hdl.*;
 
 @synthesijerhdl
-public class MulTest
+public class SumTest
 {
     public int o_mem_addr;
     public int o_mem_d;
@@ -17,7 +17,7 @@ public class MulTest
     public boolean i_comm_empty;
 
     @auto
-    public void multest()
+    public void sumtest()
     {
         while (1){
             while (i_comm_empty);
