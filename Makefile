@@ -4,6 +4,16 @@
 
 ### Settings ###
 TOP=
+MODULES=
+WRAPPERS=
+VERILOG_MODULES=
+
+PYCORAM_TOPRTL=userlogic.v
+PYCORAM_TOPMODULE=$(PYCORAM_TOPRTL:.v=)
+PYCORAM_THREAD=ctrl_thread.py
+PYCORAM_TEST=testbench.v
+PYCORAM_DIR=pycoram
+PYCORAM_FILES=$(PYCORAM_DIR)/$(PYCORAM_TOPRTL) $(PYCORAM_DIR)/$(PYCORAM_THREAD) $(PYCORAM_DIR)/$(PYCORAM_TEST)
 
 ### Environment Settings ###
 SYNTHESIJER_VERSION=20160511
@@ -17,14 +27,27 @@ PYCORAM_USERLOGIC_V=$(PYCORAM_GENDIR)/hdl/verilog/pycoram_userlogic.v
 
 ENV_INSTALL_LOG=$(PWD)/env_install.log
 
+### Command Settings ###
+JAVA=java
+JAVAC=javac
+
 CURL=curl
 FIND=find
+SED=sed
+
+.SUFFIXES: .java .v
 
 .PHONY: all
-all: init synthesijer_build
+all: init build_ip
+
+.PHONY: build_ip
+build_ip: synthesijer_build pycoram_build
 
 .PHONY: synthesijer_build
-synthesijer_build: build_modules $(TOP:.java=.v)
+synthesijer_build: $(MODULES:.java=.v) $(TOP:.java=.v)
+
+.PHONY: pycoram_build
+pycoram_build: $(PYCORAM_USERLOGIC_V)
 
 $(TOP:.java=.v): $(TOP) $(MODULES:.java=.v)
 	@echo "*** Synthesijer Top Module ***"
@@ -32,18 +55,22 @@ $(TOP:.java=.v): $(TOP) $(MODULES:.java=.v)
 	$(JAVA) -cp $(SYNTHESIJER):. $(TOP:.java=)
 	@echo
 
-.PHONY: build_modules
-build_modules: $(MODULES) $(WRAPPERS)
-	@echo "*** Synthesijer Submodules ***"
-	$(JAVA) -cp $(SYNTHESIJER) synthesijer.Main --verilog $(MODULES) $(WRAPPERS)
-	@echo
+.java.v:
+	$(JAVA) -cp $(SYNTHESIJER) synthesijer.Main --verilog $<
 
-.PHONY: pycoram_build
-pycoram_build:
+$(PYCORAM_USERLOGIC_V): $(MODULES:.java=.v) $(TOP:.java=.v) $(PYCORAM_FILES)
 	@echo "*** PyCoRAM ***"
 	cp ./*.v pycoram/
-	$(MAKE) -C pycoram/ BFTOP="$(TOP:.java=.v)" BFMOD="$(MODULES:.java=.v)" BFVMOD="$(DEPEND_MODULES)" $(PYCORAM_BUILD_CMD)
-	cat $(PYCORAM_USERLOGIC_V) | $(SED) -e 's/;assign .* = / = /g' | $(SED) -e 's/\([0-9]\+\)parameter/\1, parameter/g' > $(PYCORAM_USERLOGIC_V).tmp
+	$(MAKE) -C pycoram/ \
+		TOPMODULE="$(PYCORAM_TOPMODULE)" \
+		RTL="$(PYCORAM_TOPRTL) $(TOP:.java=.v) $(MODULES:.java=.v) $(DEPEND_MODULES)" \
+		THREAD="$(PYCORAM_THREAD)" \
+		TEST="$(PYCORAM_TEST)" \
+		$(PYCORAM_BUILD_CMD)
+	cat $(PYCORAM_USERLOGIC_V) \
+		| $(SED) -e 's/;assign .* = / = /g' \
+		| $(SED) -e 's/\([0-9]\+\)parameter/\1, parameter/g' \
+		> $(PYCORAM_USERLOGIC_V).tmp
 	mv $(PYCORAM_USERLOGIC_V).tmp $(PYCORAM_USERLOGIC_V)
 	@echo
 
@@ -87,10 +114,12 @@ endef
 
 .PHONY: clean
 clean:
-	rm -f env_install.log
-	rm -f *_scheduler_board_*
-	rm -f $(TOP:.java=.v) $(TOP:.java=.class)
-	rm -f $(MODULES:.java=.v)
+	$(RM) -f env_install.log
+	$(RM) -f *_scheduler_board_*
+	$(RM) -f $(TOP:.java=.v) $(TOP:.java=.class)
+	$(RM) -f $(MODULES:.java=.v) $(MODULES:.java=.class)
+	cd pycoram; $(RM) -f $(TOP:.java=.v) $(MODULES:.java=.v) $(VERILOG_MODULES)
+	$(MAKE) -C pycoram/ clean
 
 .PHONY: reset
 reset:
