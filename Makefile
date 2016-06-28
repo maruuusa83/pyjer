@@ -73,7 +73,10 @@ endef
 
 .PHONY: clean
 clean:
-	rm env_install.log
+	rm -f env_install.log
+	rm -f *_scheduler_board_*
+	rm -f $(TOP:.java=.v) $(TOP:.java=.class)
+	rm -f $(MODULES:.java=.v)
 
 .PHONY: reset
 reset:
