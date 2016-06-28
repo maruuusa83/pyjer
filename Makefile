@@ -10,6 +10,11 @@ SYNTHESIJER_VERSION=20160511
 SYNTHESIJER=$(PWD)/synthesijer/synthesijer_$(SYNTHESIJER_VERSION).jar
 SYNTHESIJER_LIB=$(PWD)/synthesijer/synthesijer_lib_$(SYNTHESIJER_VERSION)
 
+PYCORAM=$(PWD)/pycoram/PyCoRAM/pycoram
+PYCORAM_BUILD_CMD=build
+PYCORAM_GENDIR=./pycoram/pycoram_userlogic_v1_00_a
+PYCORAM_USERLOGIC_V=$(PYCORAM_GENDIR)/hdl/verilog/pycoram_userlogic.v
+
 ENV_INSTALL_LOG=$(PWD)/env_install.log
 
 CURL=curl
@@ -31,6 +36,15 @@ $(TOP:.java=.v): $(TOP) $(MODULES:.java=.v)
 build_modules: $(MODULES) $(WRAPPERS)
 	@echo "*** Synthesijer Submodules ***"
 	$(JAVA) -cp $(SYNTHESIJER) synthesijer.Main --verilog $(MODULES) $(WRAPPERS)
+	@echo
+
+.PHONY: build_pycoram
+build_pycoram:
+	@echo "*** PyCoRAM ***"
+	cp ./*.v pycoram/
+	$(MAKE) -C pycoram/ BFTOP="$(TOP:.java=.v)" BFMOD="$(MODULES:.java=.v)" BFVMOD="$(DEPEND_MODULES)" $(PYCORAM_BUILD_CMD)
+	cat $(PYCORAM_USERLOGIC_V) | $(SED) -e 's/;assign .* = / = /g' | $(SED) -e 's/\([0-9]\+\)parameter/\1, parameter/g' > $(PYCORAM_USERLOGIC_V).tmp
+	mv $(PYCORAM_USERLOGIC_V).tmp $(PYCORAM_USERLOGIC_V)
 	@echo
 
 .PHONY: init
