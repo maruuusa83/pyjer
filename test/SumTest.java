@@ -19,7 +19,10 @@ public class SumTest
     @auto
     public void sumtest()
     {
-        while (1){
+        int a, b;
+        int result;
+
+        while (true){
             while (i_comm_empty);
             while (!i_comm_empty){
                 o_comm_deq = true;

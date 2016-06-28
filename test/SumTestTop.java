@@ -8,7 +8,7 @@ public class SumTestTop {
     public static int ADDR_WIDTH = 32;
     public static int DATA_WIDTH = 32;
 
-    public static void main(Sting... args)
+    public static void main(String... args)
     {
         /* TopModule */
         HDLModule sumTestTop = new HDLModule("SumTestTop", "clk", "reset");
@@ -47,21 +47,21 @@ public class SumTestTop {
         instanceSumTest.getSignalForPort("clk").setAssign(null, sumTest.getSysClk().getSignal());
         instanceSumTest.getSignalForPort("reset").setAssign(null, sumTest.getSysReset().getSignal());
 
-        mem_addr.getSignal().setAssign(null, instanceSumTest.getSignalForPort(core_mem_addr_out.getName()));
-        mem_d.getSignal().setAssign(null, instanceSumTest.getSignalForPort(core_mem_d_out.getName()));
-        mem_we.getSignal().setAssign(null, instanceSumTest.getSignalForPort(core_mem_we_out.getName()));
-        instanceSumTest.getSignalForPort(core_mem_q_in.getName()).setAssign(null, mem_q.getSignal());
-        instanceSumTest.getSignalForPort(core_mem_q_we.getName()).setAssign(null, HDLPreDefinedConstant.HIGH);
+        mem_addr.getSignal().setAssign(null, instanceSumTest.getSignalForPort(sumtest_mem_addr_out.getName()));
+        mem_d.getSignal().setAssign(null, instanceSumTest.getSignalForPort(sumtest_mem_d_out.getName()));
+        mem_we.getSignal().setAssign(null, instanceSumTest.getSignalForPort(sumtest_mem_we_out.getName()));
+        instanceSumTest.getSignalForPort(sumtest_mem_q_in.getName()).setAssign(null, mem_q.getSignal());
+        instanceSumTest.getSignalForPort(sumtest_mem_q_we.getName()).setAssign(null, HDLPreDefinedConstant.HIGH);
 
-        comm_d.getSignal().setAssign(null, instanceSumTest.getSignalForPort(core_comm_d_out.getName()));
-        comm_enq.getSignal().setAssign(null, instanceSumTest.getSignalForPort(core_comm_enq_out.getName()));
-        instanceSumTest.getSignalForPort(core_comm_full_in.getName()).setAssign(null, comm_full.getSignal());
-        instanceSumTest.getSignalForPort(core_comm_full_we.getName()).setAssign(null, HDLPreDefinedConstant.HIGH);
-        instanceSumTest.getSignalForPort(core_comm_q_in.getName()).setAssign(null, comm_q.getSignal());
-        instanceSumTest.getSignalForPort(core_comm_q_we.getName()).setAssign(null, HDLPreDefinedConstant.HIGH);
-        comm_deq.getSignal().setAssign(null, instanceSumTest.getSignalForPort(core_comm_deq_out.getName()));
-        instanceSumTest.getSignalForPort(core_comm_empty_in.getName()).setAssign(null, comm_empty.getSignal());
-        instanceSumTest.getSignalForPort(core_comm_empty_we.getName()).setAssign(null, HDLPreDefinedConstant.HIGH);
+        comm_d.getSignal().setAssign(null, instanceSumTest.getSignalForPort(sumtest_comm_d_out.getName()));
+        comm_enq.getSignal().setAssign(null, instanceSumTest.getSignalForPort(sumtest_comm_enq_out.getName()));
+        instanceSumTest.getSignalForPort(sumtest_comm_full_in.getName()).setAssign(null, comm_full.getSignal());
+        instanceSumTest.getSignalForPort(sumtest_comm_full_we.getName()).setAssign(null, HDLPreDefinedConstant.HIGH);
+        instanceSumTest.getSignalForPort(sumtest_comm_q_in.getName()).setAssign(null, comm_q.getSignal());
+        instanceSumTest.getSignalForPort(sumtest_comm_q_we.getName()).setAssign(null, HDLPreDefinedConstant.HIGH);
+        comm_deq.getSignal().setAssign(null, instanceSumTest.getSignalForPort(sumtest_comm_deq_out.getName()));
+        instanceSumTest.getSignalForPort(sumtest_comm_empty_in.getName()).setAssign(null, comm_empty.getSignal());
+        instanceSumTest.getSignalForPort(sumtest_comm_empty_we.getName()).setAssign(null, HDLPreDefinedConstant.HIGH);
 
         /* Generate Verilog Files */
         HDLUtils.generate(sumTestTop, HDLUtils.Verilog);
