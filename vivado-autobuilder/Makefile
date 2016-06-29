@@ -3,7 +3,7 @@
 # http://opensource.org/licenses/mit-license.php
 ### Settings ###
 HW_NAME=zed_block_design_wrapper_hw_platform_0
-CONSTRAINT_FILE=constrs/pin_assign.xdc
+CONSTRAINT_FILE=constras/pin_assign.xdc
 
 
 ### Params ###
@@ -65,4 +65,11 @@ generate_bif:
 generate_bootimage:
 	@echo "*** Genarate Bootimage ***"
 	@echo
+
+.PHONY: clean
+clean:
+	rm -rf $(PROJECT_NAME).*
+	rm -rf *.log *.jou
+	rm -f $(SETTING_FILE)
+	rm -f u-boot.elf
 
