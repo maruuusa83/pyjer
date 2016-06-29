@@ -43,7 +43,7 @@ public class SumTestTop {
         HDLPort sumtest_comm_empty_we = sumTest.newPort("i_comm_empty_we ", HDLPort.DIR.IN,  HDLPrimitiveType.genBitType());
 
         /* Instance */
-        HDLInstance instanceSumTest = sumTest.newModuleInstance(sumTest, "sumtest");
+        HDLInstance instanceSumTest = sumTestTop.newModuleInstance(sumTest, "sumtest");
         instanceSumTest.getSignalForPort("clk").setAssign(null, sumTest.getSysClk().getSignal());
         instanceSumTest.getSignalForPort("reset").setAssign(null, sumTest.getSysReset().getSignal());
 
