@@ -20,10 +20,15 @@ SYNTHESIJER_VERSION=20160511
 SYNTHESIJER=$(PWD)/synthesijer/synthesijer_$(SYNTHESIJER_VERSION).jar
 SYNTHESIJER_LIB=$(PWD)/synthesijer/synthesijer_lib_$(SYNTHESIJER_VERSION)
 
-PYCORAM=$(PWD)/pycoram/PyCoRAM/pycoram
+PYCORAM_DIR=$(PWD)/pycoram
+PYCORAM=$(PYCORAM_DIR)/PyCoRAM/pycoram
 PYCORAM_BUILD_CMD=build
-PYCORAM_GENDIR=./pycoram/pycoram_userlogic_v1_00_a
+PYCORAM_IP_NAME=pycoram_userlogic_v1_00_a
+PYCORAM_GENDIR=$(PYCORAM_DIR)/$(PYCORAM_IP_NAME)
 PYCORAM_USERLOGIC_V=$(PYCORAM_GENDIR)/hdl/verilog/pycoram_userlogic.v
+
+VIVADO_AUTOBUILDER=./vivado-autobuilder
+VIVADO_AUTOBUILDER_IPS=$(VIVADO_AUTOBUILDER)/ips
 
 ENV_INSTALL_LOG=$(PWD)/env_install.log
 
@@ -41,13 +46,20 @@ SED=sed
 all: init build_ip
 
 .PHONY: build_ip
-build_ip: synthesijer_build pycoram_build
+build_ip: synthesijer_build pycoram_build vivado_build
 
 .PHONY:synthesijer_build
 synthesijer_build: $(MODULES:.java=.v) $(TOP:.java=.v)
 
 .PHONY: pycoram_build
 pycoram_build: $(PYCORAM_USERLOGIC_V)
+
+.PHONY: vivado_build
+pycoram_build:
+	@echo "*** Vivado ***"
+	cp -r $(PYCORAM_GENDIR)/ $(VIVADO_AUTOBUILDER_IPS)
+	$(MAKE) -C $(VIVADO_AUTOBUILDER)
+	@echo
 
 $(TOP:.java=.v): $(TOP) $(MODULES:.java=.v)
 	@echo "*** Synthesijer Top Module ***"
@@ -117,6 +129,8 @@ test:
 	@echo "Prepairing..."
 	@cp test/*.java ./
 	@cp test/pycoram/* ./pycoram/
+	@mkdir -p vivado-autobuilder/constras
+	@cp test/vivado-autobuilder/constras/* ./vivado-autobuilder/constras/
 	@echo "Start Build Test"
 	@$(MAKE) -C ./ \
 		TOP="SumTestTop.java" \
@@ -127,9 +141,11 @@ test:
 	@$(MAKE) -C ./ \
 		TOP="SumTestTop.java" \
 		MODULES="SumTest.java Dummy.java" \
-		reset
+		clean
 	@$(RM) SumTestTop.java SumTest.java Dummy.java
 	@cd pycoram; $(RM) ctrl_thread.py testbench.v userlogic.v
+	@$(RM) $(VIVADO_AUTOBUILDER_IPS)/$(PYVCORAM_IP_NAME)
+	@$(RM) ./vivado-autobuilder/constras/*
 	@echo "Done."
 
 .PHONY: clean
@@ -140,10 +156,12 @@ clean:
 	$(RM) -f $(MODULES:.java=.v) $(MODULES:.java=.class)
 	cd pycoram; $(RM) -f $(TOP:.java=.v) $(MODULES:.java=.v) $(VERILOG_MODULES)
 	$(RM) -rf $(PYCORAM_GENDIR)
+	$(RM) -rf $(VIVADO_AUTOBUILDER_IPS)/
 	$(MAKE) -C pycoram/ clean
+	$(MAKE) -C vivado-autobuilder/ clean
 
 .PHONY: reset
 reset:
-	$(MAKE) -C ./ clean
+	$(MAKE) -C ./ clean TOP=$(TOP) MODULES=$(MODULES)
 	rm -rf pycoram/PyCoRAM/ synthesijer/
 
