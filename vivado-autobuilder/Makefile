@@ -19,6 +19,10 @@ SETTING_FILE=builder/settings.tcl
 
 VIVADO=vivado
 VIVADO_OPTIONS=
+XILINX_SDK=xsdk
+XILINX_SDK_OPTIONS=
+BOOTGEN=bootgen
+BOOTGEN_OPTIONS=
 
 .PHONY: all
 all: $(SETTING_FILE) build export_hardware generate_fsbl generate_bif generate_bootimage
@@ -49,21 +53,32 @@ build:
 .PHONY: export_hardware
 export_hardware:
 	@echo "*** Export Hardware ***"
+	$(VIVADO) $(VIVADO_OPTIONS) -mode batch -source ./builder/hw_export.tcl
 	@echo
 
 .PHONY: generate_fsbl
 generate_fsbl:
 	@echo "*** Genarate FSBL ***"
+	$(XILINX_SDK) $(XILINX_SDL_OPTIONS) -batch -source ./builder/build_fsbl.tcl
 	@echo
 
 .PHONY: generate_bif
 generate_bif:
 	@echo "*** Genarate BIF ***"
+	@echo the_ROM_image: > fsbl.bif.tmp
+	@echo "{" >> fsbl.bif.tmp
+	@echo [bootloader]$(WORKSPACE_SDK)/fsbl/Debug/fsbl.elf >> fsbl.bif.tmp
+	@echo $(WORKSPACE_SDK)/$(HW_NAME)/$(BIT_FILE) >> fsbl.bif.tmp
+	@echo $(U_BOOT) >> fsbl.bif.tmp
+	@echo "}" >> fsbl.bif.tmp
+	mv fsbl.bif.tmp $(BIF_FILE)
 	@echo
 
 .PHONY: generate_bootimage
 generate_bootimage:
 	@echo "*** Genarate Bootimage ***"
+	mkdir -p $(BOOTIMAGE_DIR)
+	$(BOOTGEN) $(BOOTGEN_OPTIONS) -image $(BIF_FILE) -o $(BOOT_BIN) -w on 
 	@echo
 
 .PHONY: clean
