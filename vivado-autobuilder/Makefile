@@ -17,15 +17,18 @@ DESIGN_NAME=design_1
 
 SETTING_FILE=builder/settings.tcl
 
+BIF_FILE=$(WORKSPACE_SDK)/fsbl/fsbl.bif
 VIVADO=vivado
 VIVADO_OPTIONS=
 XILINX_SDK=xsdk
 XILINX_SDK_OPTIONS=
 BOOTGEN=bootgen
 BOOTGEN_OPTIONS=
+BOOTIMAGE_DIR=$(WORKSPACE_SDK)/fsbl/bootimage
+BOOT_BIN=$(BOOTIMAGE_DIR)/BOOT.bin
 
 .PHONY: all
-all: $(SETTING_FILE) build export_hardware generate_fsbl generate_bif generate_bootimage
+all: $(SETTING_FILE) u-boot.elf build export_hardware generate_fsbl generate_bif generate_bootimage
 
 $(SETTING_FILE):
 	@echo "*** Generate settings.tcl ***"
@@ -42,6 +45,17 @@ $(SETTING_FILE):
 		>> settings.tcl.tmp; \
 		fi
 	mv settings.tcl.tmp $(SETTING_FILE)
+	@echo
+
+u-boot.elf:
+	@echo "********** Create u-boot.elf **********"
+	mkdir -p work
+	cd work; git clone https://github.com/Xilinx/u-boot-xlnx.git
+	cd work/u-boot-xlnx/; git checkout -b xilinx-v2015.4 xilinx-v2015.4
+	cd work/u-boot-xlnx/; patch -p0 < ../../sdboot.patch
+	make -C work/u-boot-xlnx/ zynq_zed_config CROSS_COMPILE=arm-xilinx-linux-gnueabi- ARCH=arm
+	make -C work/u-boot-xlnx/ CROSS_COMPILE=arm-xilinx-linux-gnueabi- ARCH=arm
+	cp work/u-boot-xlnx/u-boot ./u-boot.elf
 	@echo
 
 .PHONY: build
@@ -86,5 +100,5 @@ clean:
 	rm -rf $(PROJECT_NAME).*
 	rm -rf *.log *.jou
 	rm -f $(SETTING_FILE)
-	rm -f u-boot.elf
+	rm -rf work/
 
