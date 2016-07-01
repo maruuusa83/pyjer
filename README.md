@@ -22,3 +22,29 @@ First, run next command to construct environment.
 $ make init
 ```
 
+If necessary, run `make test` command to check wherher
+PyJer will work well.
+
+### Develop your HW
+Place your codes as shown below:
+
+ * Synthesijer codes: under the project root
+ * PyCoRAM codes: under `pycoram` directory
+ * `pin_assing.xdc`: under `vivado-autobuilder/constras` directory
+
+**Example:**  
+The sample project in `test` directory will be placed as next:
+```
+/ -- synthesijer/
+  |- pycoram/
+  |  |- ctrl_thread.py
+  |  |- testbench.v
+  |  |- userlogic.v
+  |- vivado-autobuilder/
+  |  |- constras/
+  |     |- pin_assign.xdc
+  |- SumTestTop.java
+  |- SumTest.java
+  |- Dummy.java
+```
+
