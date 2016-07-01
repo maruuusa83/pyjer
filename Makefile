@@ -55,7 +55,7 @@ synthesijer_build: $(MODULES:.java=.v) $(TOP:.java=.v)
 pycoram_build: $(PYCORAM_USERLOGIC_V)
 
 .PHONY: vivado_build
-pycoram_build:
+vivado_build:
 	@echo "*** Vivado ***"
 	cp -r $(PYCORAM_GENDIR)/ $(VIVADO_AUTOBUILDER_IPS)
 	$(MAKE) -C $(VIVADO_AUTOBUILDER)
