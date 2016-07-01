@@ -6,7 +6,7 @@ with High Level Synthesis Tools and SoC
 
 Copyright (c) 2016 Daichi Teruya  
 Released under the MIT license  
-[http://opensource.org/licenses/mit-license.php]
+[http://opensource.org/licenses/mit-license.php](http://opensource.org/licenses/mit-license.php)
 
 ## Requirement
  * Java SE8
@@ -69,7 +69,7 @@ unnecessary.
 If necessary, you can rewrite macro definitions about PyCoRAM.
 
 
-After that, run `make all` command. Make will generate `BOOT.bin` into `vivado-autobuilder/build\_space\_project.sdk/fsbl/bootimage`.
+After that, run `make all` command. Make will generate `BOOT.bin` into `vivado-autobuilder/build_space_project.sdk/fsbl/bootimage`.
 
 (If you want to synthesize only Java, you can use `synthesijer_build` command.)
 
