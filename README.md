@@ -48,3 +48,28 @@ The sample project in `test` directory will be placed as next:
   |- Dummy.java
 ```
 
+### Synthesis your HW
+Firstly, set some parameters of top of `Makefile` which is in the project root.
+
+ * TOP : File name of a top module for Synthesijer
+ * MODULES : List of file names of Synthesijer modules
+ * WRAPPERS : List of file names of Synthesijer verilog wrappers
+ * VERILOG\_MODULES : List of file names of Verilog modules which is used by Synthesijer
+
+**Example:**  
+``` make
+TOP=SumTestTop.java
+MODULES=SumTest.java Dummy.java
+WRAPPERS=
+VERILOG_MODULES=
+```
+
+When you name files for PyCoRAM as same as `test/pycoram` files, PyCoRAM settings is
+unnecessary.
+If necessary, you can rewrite macro definitions about PyCoRAM.
+
+
+After that, run `make all` command. Make will generate `BOOT.bin` into `vivado-autobuilder/build\_space\_project.sdk/fsbl/bootimage`.
+
+(If you want to synthesize only Java, you can use `synthesijer_build` command.)
+
