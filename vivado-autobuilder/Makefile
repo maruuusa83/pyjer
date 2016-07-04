@@ -5,6 +5,11 @@
 HW_NAME=zed_block_design_wrapper_hw_platform_0
 CONSTRAINT_FILE=constras/pin_assign.xdc
 
+SYNTH_FLOW="Vivado Synthesis 2015"
+SYNTH_STRATEGY="Vivado Synthesis Defaults"
+IMPL_FLOW="Vivado Implementation 2015"
+IMPL_STRATEGY="Vivado Implementation Defaults"
+
 
 ### Params ###
 HWSPEC_FILE=zed_block_design_wrapper.hdf
@@ -40,6 +45,10 @@ $(SETTING_FILE):
 	@echo "set hwspec_file "\"$(HWSPEC_FILE)\" >> settings.tcl.tmp
 	@echo "set design_constraint_file "\"$(CONSTRAINT_FILE)\" >> settings.tcl.tmp
 	@echo "set design_name "\"$(DESIGN_NAME)\" >> settings.tcl.tmp
+	@echo "set synth_1_flow "\"$(SYNTH_FLOW)\" >> settings.tcl.tmp
+	@echo "set synth_1_strategy "\"$(SYNTH_STRATEGY)\" >> settings.tcl.tmp
+	@echo "set impl_1_flow "\"$(IMPL_FLOW)\" >> settings.tcl.tmp
+	@echo "set impl_1_strategy "\"$(IMPL_STRATEGY)\" >> settings.tcl.tmp
 	@if [ ! "$(BLOCK_DESIGN_TCL_FILE)" = "" ]; \
 		then echo "set design_bd_tcl_file "\"bd/$(BLOCK_DESIGN_TCL_FILE)\" \
 		>> settings.tcl.tmp; \
