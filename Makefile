@@ -29,6 +29,7 @@ PYCORAM_USERLOGIC_V=$(PYCORAM_GENDIR)/hdl/verilog/pycoram_userlogic.v
 
 VIVADO_AUTOBUILDER=./vivado-autobuilder
 VIVADO_AUTOBUILDER_IPS=$(VIVADO_AUTOBUILDER)/ips
+BOOT_BIN=$(VIVADO_AUTOBUILDER)/build_space_project.sdk/fsbl/bootimage/BOOT.bin
 
 ENV_INSTALL_LOG=$(PWD)/env_install.log
 
@@ -55,11 +56,7 @@ synthesijer_build: $(MODULES:.java=.v) $(TOP:.java=.v)
 pycoram_build: $(PYCORAM_USERLOGIC_V)
 
 .PHONY: vivado_build
-vivado_build:
-	@echo "*** Vivado ***"
-	cp -r $(PYCORAM_GENDIR)/ $(VIVADO_AUTOBUILDER_IPS)
-	$(MAKE) -C $(VIVADO_AUTOBUILDER)
-	@echo
+vivado_build: $(BOOT_BIN)
 
 $(TOP:.java=.v): $(TOP) $(MODULES:.java=.v)
 	@echo "*** Synthesijer Top Module ***"
@@ -84,6 +81,12 @@ $(PYCORAM_USERLOGIC_V): $(MODULES:.java=.v) $(TOP:.java=.v) $(PYCORAM_FILES)
 		| $(SED) -e 's/\([0-9]\+\)parameter/\1, parameter/g' \
 		> $(PYCORAM_USERLOGIC_V).tmp
 	mv $(PYCORAM_USERLOGIC_V).tmp $(PYCORAM_USERLOGIC_V)
+	@echo
+
+$(BOOT_BIN): $(PYCORAM_USERLOGIC_V)
+	@echo "*** Vivado ***"
+	cp -r $(PYCORAM_GENDIR)/ $(VIVADO_AUTOBUILDER_IPS)
+	$(MAKE) -C $(VIVADO_AUTOBUILDER)
 	@echo
 
 .PHONY: init
